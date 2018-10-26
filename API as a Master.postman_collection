@@ -1,0 +1,344 @@
+{
+	"variables": [],
+	"info": {
+		"name": "API as a Master",
+		"_postman_id": "592522b5-2918-3b27-3ca3-6b5126556978",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1 Create",
+			"description": "",
+			"item": [
+				{
+					"name": "Create Users",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[data.ORGANIZATION+\"'s user \"+data.MAIL+\" created at Okta\"] = responseCode.code === 200;",
+									""
+								]
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"console.log(\"Creating the user: \"+data.MAIL);"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{url}}/api/v1/users?activate=true",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Authorization",
+								"value": "SSWS {{apikey}}",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"profile\": {\n    \"firstName\": \"{{FIRSTNAME}}\",\n    \"lastName\": \"{{LASTNAME}}\",\n    \"email\": \"{{MAIL}}\",\n    \"login\": \"{{MAIL}}\",\n\t\"organization\": \"{{ORGANIZATION}}\",\n\t\"costCenter\": \"{{COSTCENTER}}\"\n  },\n  \"credentials\": {\n    \"password\" : { \"value\": \"{{PASSWORD}}\" },\n    \"recovery_question\": {\n      \"question\": \"{{QUESTION}}\",\n      \"answer\": \"{{ANSWER}}\"\n    }\n  }\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2 Update",
+			"description": "",
+			"item": [
+				{
+					"name": "Search User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"try{",
+									"    tests[\"Search returned a user\"] = responseBody.has(\"id\");",
+									"    var data = JSON.parse(responseBody);",
+									"    data.forEach(function (obj){",
+									"        postman.setGlobalVariable(\"USERID\", obj.id);",
+									"    })",
+									"}catch(e){ }"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{url}}/api/v1/users?filter=profile.email eq \"{{MAIL}}\"",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Authorization",
+								"value": "SSWS {{apikey}}",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[\"New Title Set for \"+data.MAIL+\": \"+data.TITLE] = responseCode.code === 200;",
+									"postman.clearEnvironmentVariable(\"USERID\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{url}}/api/v1/users/{{USERID}}",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Authorization",
+								"value": "SSWS {{apikey}}",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"profile\": {\n    \"title\" : \"{{TITLE}}\"\n  }\n}"
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3 Deactivate",
+			"description": "",
+			"item": [
+				{
+					"name": "Search User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"try{",
+									"    tests[\"Search returned a user\"] = responseBody.has(\"id\");",
+									"    var data = JSON.parse(responseBody);",
+									"    data.forEach(function (obj){",
+									"        postman.setGlobalVariable(\"USERID\", obj.id);",
+									"    })",
+									"}catch(e){ }"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{url}}/api/v1/users?filter=profile.email eq \"{{MAIL}}\"",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Authorization",
+								"value": "SSWS {{apikey}}",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Deactivate User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[data.ORGANIZATION+\"'s user \"+data.MAIL+\" deactivated at Okta\"] = responseCode.code === 200;",
+									"postman.clearEnvironmentVariable(\"USERID\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{url}}/api/v1/users/{{USERID}}/lifecycle/deactivate",
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Authorization",
+								"value": "SSWS {{apikey}}",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4 Delete",
+			"description": "",
+			"item": [
+				{
+					"name": "Search User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"try{",
+									"    tests[\"Search returned a user\"] = responseBody.has(\"id\");",
+									"    var data = JSON.parse(responseBody);",
+									"    data.forEach(function (obj){",
+									"        postman.setGlobalVariable(\"USERID\", obj.id);",
+									"    })",
+									"}catch(e){ }"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{url}}/api/v1/users?filter=profile.email eq \"{{MAIL}}\"",
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Authorization",
+								"value": "SSWS {{apikey}}",
+								"description": ""
+							}
+						],
+						"body": {},
+						"description": ""
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"tests[data.ORGANIZATION+\"'s user \"+data.MAIL+\" deleted at Okta\"] = responseCode.code === 204;",
+									"postman.clearEnvironmentVariable(\"USERID\");"
+								]
+							}
+						}
+					],
+					"request": {
+						"url": "{{url}}/api/v1/users/{{USERID}}",
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"description": ""
+							},
+							{
+								"key": "Authorization",
+								"value": "SSWS {{apikey}}",
+								"description": ""
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"description": ""
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
